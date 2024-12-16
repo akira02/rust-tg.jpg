@@ -33,7 +33,6 @@ async fn handle_message(bot: &Bot, msg: &Message) -> Result<(), anyhow::Error> {
   let captures = pattern.captures(text).ok_or(anyhow::anyhow!(""))?;
 
   let query = captures.get(1).unwrap().as_str();
-  info!("Query: {}", query);
   let is_gif = captures.get(2).unwrap().as_str() == "gif";
 
   let image_urls = image_search(query, is_gif).await?;
@@ -47,13 +46,25 @@ async fn handle_message(bot: &Bot, msg: &Message) -> Result<(), anyhow::Error> {
       }
     };
 
-    match bot
-      .send_photo(msg.chat.id, InputFile::url(parsed_url))
-      .await
-    {
+    let result = if is_gif {
+      bot
+        .send_animation(msg.chat.id, InputFile::url(parsed_url))
+        .await
+    } else {
+      bot
+        .send_photo(msg.chat.id, InputFile::url(parsed_url))
+        .await
+    };
+
+    match result {
       Ok(_) => break,
       Err(e) => {
-        error!("Failed to send photo {}: {:?}", image_url, e);
+        error!(
+          "Failed to send {} {}: {:?}",
+          if is_gif { "animation" } else { "photo" },
+          image_url,
+          e
+        );
         continue;
       }
     }
