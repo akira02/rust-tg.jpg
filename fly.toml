@@ -1,0 +1,16 @@
+# fly.toml app configuration file generated for tgjpg-rs on 2024-12-16T16:32:31+09:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'tgjpg-rs'
+primary_region = 'sin'
+
+[build]
+
+[env]
+  PORT = '0'
+  TELOXIDE_TOKEN = { from_secret = "TELOXIDE_TOKEN" }
+
+[[vm]]
+  size = 'shared-cpu-1x'
