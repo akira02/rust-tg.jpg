@@ -10,7 +10,6 @@ primary_region = 'sin'
 
 [env]
   PORT = '0'
-  TELOXIDE_TOKEN = { from_secret = "TELOXIDE_TOKEN" }
 
 [[vm]]
   size = 'shared-cpu-1x'
