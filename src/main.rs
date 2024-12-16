@@ -24,16 +24,18 @@ async fn main() {
 }
 
 async fn handle_message(bot: &Bot, msg: &Message) -> Result<(), anyhow::Error> {
-  let text = msg
-    .text()
-    .ok_or_else(|| anyhow::anyhow!("No text in message"))?;
+  let text = match msg.text() {
+    Some(text) => text,
+    None => return Ok(()),
+  };
 
-  let pattern = Regex::new(r"(.+)\.(jpg|png|gif)")?;
+  let pattern = Regex::new(r"^(.+?)\.(jpg|png|gif)$")?;
   let captures = pattern
     .captures(text)
     .ok_or_else(|| anyhow::anyhow!("No image pattern match"))?;
 
   let query = captures.get(1).unwrap().as_str();
+  info!("Query: {}", query);
   let is_gif = captures.get(2).unwrap().as_str() == "gif";
 
   let image_urls = image_search(query, is_gif).await?;
@@ -52,7 +54,10 @@ async fn handle_message(bot: &Bot, msg: &Message) -> Result<(), anyhow::Error> {
       .await
     {
       Ok(_) => break,
-      Err(e) => error!("Failed to send photo: {:?}", e),
+      Err(e) => {
+        error!("Failed to send photo {}: {:?}", image_url, e);
+        continue;
+      }
     }
   }
 
