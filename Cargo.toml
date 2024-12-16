@@ -14,6 +14,5 @@ regex = "1.11.1"
 url = "2.5.4"
 reqwest = "0.12.9"
 anyhow = "1.0.94"
-scraper = "0.22.0"
-base64 = "0.22.1"
 openssl = { version = "0.10", features = ["vendored"] }
+urlencoding = "2.1.3"
