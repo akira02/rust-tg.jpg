@@ -15,40 +15,48 @@ async fn main() {
   let bot = Bot::from_env();
 
   teloxide::repl(bot, move |bot: Bot, msg: Message| async move {
-    let pattern = Regex::new(r"(.+)\.(jpg|png|gif)").unwrap();
-    if let Some(text) = msg.text() {
-      if let Some(captures) = pattern.captures(text) {
-        let query = captures.get(1).unwrap().as_str();
-        match image_search(query, captures.get(2).unwrap().as_str() == "gif").await {
-          Ok(image_urls) => {
-            for image_url in image_urls.iter().take(2) {
-              let result = if let Ok(parsed_url) = Url::parse(image_url) {
-                bot
-                  .send_photo(msg.chat.id, InputFile::url(parsed_url))
-                  .await
-                  .map_err(|e| {
-                    error!("Failed to send photo: {:?}", e);
-                    e
-                  })
-              } else {
-                error!("Failed to parse URL: {}", image_url);
-                continue;
-              };
-
-              if result.is_ok() {
-                break;
-              }
-            }
-          }
-          Err(e) => {
-            error!("Image search failed: {:?}", e);
-          }
-        }
-      }
+    if let Err(e) = handle_message(&bot, &msg).await {
+      error!("Error handling message: {:?}", e);
     }
     Ok::<(), RequestError>(())
   })
   .await;
+}
+
+async fn handle_message(bot: &Bot, msg: &Message) -> Result<(), anyhow::Error> {
+  let text = msg
+    .text()
+    .ok_or_else(|| anyhow::anyhow!("No text in message"))?;
+
+  let pattern = Regex::new(r"(.+)\.(jpg|png|gif)")?;
+  let captures = pattern
+    .captures(text)
+    .ok_or_else(|| anyhow::anyhow!("No image pattern match"))?;
+
+  let query = captures.get(1).unwrap().as_str();
+  let is_gif = captures.get(2).unwrap().as_str() == "gif";
+
+  let image_urls = image_search(query, is_gif).await?;
+
+  for image_url in image_urls.iter().take(2) {
+    let parsed_url = match Url::parse(image_url) {
+      Ok(url) => url,
+      Err(_) => {
+        error!("Failed to parse URL: {}", image_url);
+        continue;
+      }
+    };
+
+    match bot
+      .send_photo(msg.chat.id, InputFile::url(parsed_url))
+      .await
+    {
+      Ok(_) => break,
+      Err(e) => error!("Failed to send photo: {:?}", e),
+    }
+  }
+
+  Ok(())
 }
 
 async fn image_search(query: &str, is_gif: bool) -> Result<Vec<String>, anyhow::Error> {
