@@ -29,7 +29,7 @@ async fn handle_message(bot: &Bot, msg: &Message) -> Result<(), anyhow::Error> {
     None => return Ok(()),
   };
 
-  let pattern = Regex::new(r"^(.+?)\.(jpg|png|gif)$")?;
+  let pattern = Regex::new(r"^(.+?)\.((?i)jpg|png|gif)$")?;
   let captures = pattern.captures(text).ok_or(anyhow::anyhow!(""))?;
 
   let query = captures.get(1).unwrap().as_str();
@@ -87,6 +87,10 @@ async fn image_search(query: &str, is_gif: bool) -> Result<Vec<String>, anyhow::
       "User-Agent",
       "Opera/9.80 (J2ME/MIDP; Opera Mini/9.80 (J2ME/23.377; U; en) Presto/2.5.25 Version/10.54",
     )
+    .header(
+      "Accept-Language",
+      "en-US,en-GB;q=0.9,en;q=0.8,zh-TW;q=0.7,zh;q=0.6,ja-JP;q=0.5",
+    )
     .send()
     .await?;
 
@@ -98,7 +102,7 @@ fn extract_image_urls(text: &str) -> Vec<String> {
   let mut urls = Vec::new();
   let data_ou_regex = regex::Regex::new(r#"data-ou="(.*?)""#).unwrap();
 
-  for cap in data_ou_regex.captures_iter(text).take(3) {
+  for cap in data_ou_regex.captures_iter(text).take(10) {
     if let Some(url_match) = cap.get(1) {
       let decoded_url = urlencoding::decode(url_match.as_str())
         .unwrap_or_default()
