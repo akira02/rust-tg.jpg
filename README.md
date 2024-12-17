@@ -1,5 +1,7 @@
 # rust-tg.jpg
 
+Sometimes words aren't enough to express your emotions, and searching for stickers or GIFs can be a hassle. Try tg.jpg! Like Google's "I'm Feeling Lucky" but for images, this bot will instantly reply with the first image it finds on Google. "mic drop.gif"!
+
 This project is a Telegram bot that searches for images based on user input. It uses the Teloxide library for interacting with the Telegram Bot API and performs image searches using Google's image search.
 
 ## Features
@@ -57,9 +59,7 @@ $ rustup override set nightly
 
 - [Teloxide](https://github.com/teloxide/teloxide) for Telegram bot API interaction.
 - [Reqwest](https://github.com/seanmonstar/reqwest) for making HTTP requests.
-- [Scraper](https://github.com/causal-agent/scraper) for parsing HTML.
 - [Regex](https://github.com/rust-lang/regex) for regular expression matching.
-- [Base64](https://github.com/marshallpierce/rust-base64) for decoding base64 images.
 - [Anyhow](https://github.com/dtolnay/anyhow) for error handling.
 
 ## Contributing

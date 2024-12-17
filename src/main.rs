@@ -30,7 +30,10 @@ async fn handle_message(bot: &Bot, msg: &Message) -> Result<(), anyhow::Error> {
   };
 
   let pattern = Regex::new(r"^(.+?)\.((?i)jpg|png|gif)$")?;
-  let captures = pattern.captures(text).ok_or(anyhow::anyhow!(""))?;
+  let captures = match pattern.captures(text) {
+    Some(c) => c,
+    None => return Ok(()),
+  };
 
   let query = captures.get(1).unwrap().as_str();
   let is_gif = captures.get(2).unwrap().as_str() == "gif";
