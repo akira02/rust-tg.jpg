@@ -37,7 +37,7 @@ async fn handle_message(bot: &Bot, msg: &Message) -> Result<(), anyhow::Error> {
 
   let image_urls = image_search(query, is_gif).await?;
 
-  for image_url in image_urls.iter().take(2) {
+  for image_url in image_urls.iter() {
     let parsed_url = match Url::parse(image_url) {
       Ok(url) => url,
       Err(_) => {
